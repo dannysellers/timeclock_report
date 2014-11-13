@@ -52,3 +52,6 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# Source data
+Oct14_JobCodes_PDX.csv
