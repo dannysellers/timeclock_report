@@ -97,23 +97,6 @@ def parse_people(data):
 		_lst.append(_opdict)
 
 
-	for row in data:
-		for person in peoplelist[0]:
-			_op = row['EXPORTSAS']
-			if _op not in person:
-				person[_op] = row['OPMINS']
-	# else:
-	print peoplelist[0]
-
-	# for person in peoplelist[0]:
-	# for row in data:
-	# if row['FULLNAME'] == person['Name']:
-	# print row['OPMINS']
-	#if row['EXPORTSAS'] not in _persondict:
-	#    peoplelist['Name'][row['EXPORTSAS']] = row['OPMINS']
-	#else:
-	#    peoplelist['Name'][row['EXPORTSAS']] += row['OPMINS']
-
 
 	# _oplist = []
 	# for row in data:
