@@ -95,7 +95,7 @@ def parse_people(data):
 
 		print('Total mins for {}: {}'.format(_opdict['Name'], _opdict['Total_mins']))
 		_lst.append(_opdict)
-
+		print _opdict
 	return _lst
 
 
@@ -104,57 +104,64 @@ def write_data(filename, data):
 	print('Writing to {}'.format(filename))
 
 	assert isinstance(data, list)
-	with w:
-		_writer = csv.writer(w, delimiter=',')
-		for row in data:
-			_writer.writerow(row)
-	# _newfieldnames = data[0].keys()
-	# with w:
-	# 	writer = csv.DictWriter(w, delimiter = ',', lineterminator = '\n',
-	# 							fieldnames = _newfieldnames)
-	# 	writer.writerow(dict((fn, fn) for fn in _newfieldnames))
-	# 	for _row in data:
-	# 		writer.writerow(_row)
+	if type(data[0]) != dict:
+		with w:
+			_writer = csv.writer(w, delimiter=',')
+			for row in data:
+				_writer.writerow(row)
+	else:
+		_newfieldnames = data[0].keys()
+		with w:
+			writer = csv.DictWriter(w, delimiter = ',', lineterminator = '\n',
+									fieldnames = _newfieldnames)
+			writer.writerow(dict((fn, fn) for fn in _newfieldnames))
+			for _row in data:
+				writer.writerow(_row)
 
 
 def pivot_worktime(peoplelist):
-	oplist = []  # list of operations to be extracted from people dicts
+	"""
+	Creates pivoted table with operation as first column with each
+	person's stats filling in rows
+	:param peoplelist: list of dicts containing {op: time} pairs
+	:return: list of lists (matrix) for writing
+	"""
+
+	# First, we extract a list of operations from people dicts for first column
+	oplist = []
 	for operation in peoplelist[0].keys():
-		if operation is not 'Name' or operation is not 'Total_mins':
+		if operation != 'Name' and operation != 'Total_mins':
 			oplist.append(operation)
 
 	timetable = []  # list of rows = matrix
+	_namelist = []  # list of peoples' names, to be inserted at position 0
 
 	for op in oplist:
-		_rowlist = []  # list to store row
+		_rowlist = [op]  # list to store row, starting with the operation name
 		for person in peoplelist:
+			if person['Name'] not in _namelist:
+				_namelist.append(person['Name'])
 			for key, value in person.iteritems():
 				if key == op:
 					_rowlist.append(value)
 			timetable.append(_rowlist)
 
+	_namelist.insert(0, 'Job Code')
+	timetable.insert(0, _namelist)
+
 	return timetable
-
-
-""" list = []
-For row in items['EXPORTSAS']:  # loop through all operation categories
-	_rowlist = []
-	for person in people:  # pull number for person
-		if person['EXPORTSAS'] = row:  # pull the person's number for the particular op
-			_rowlist.append(])  # append to the operation list (row)
-	list.append(_rowlist)  # append new row to table
-return list  # actually a matrix """
 
 
 if __name__ == '__main__':
 	_filename = 'Oct14_JobCodes_PDX.csv'
 	# _filename = 'sample.csv'
+
 	_data = load_data(_filename)
 	_newdata = fix_time(_data)
 	_data = parse_people(_newdata)
 
 	_timetable = pivot_worktime(_data)
-	#....
 
 	_outfile = _filename[:-4] + '_new.csv'
+	# write_data(_outfile, _data)
 	write_data(_outfile, _timetable)
