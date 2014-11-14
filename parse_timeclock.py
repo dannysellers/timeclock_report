@@ -95,7 +95,7 @@ def parse_people(data):
 
 		print('Total mins for {}: {}'.format(_opdict['Name'], _opdict['Total_mins']))
 		_lst.append(_opdict)
-		print _opdict
+
 	return _lst
 
 
@@ -127,7 +127,7 @@ def pivot_worktime(peoplelist):
 	:return: list of lists (matrix) for writing
 	"""
 
-	# First, we extract a list of operations from people dicts for first column
+	# First extract a list of operations from people dicts for first column
 	oplist = []
 	for operation in peoplelist[0].keys():
 		if operation != 'Name' and operation != 'Total_mins':
@@ -135,19 +135,32 @@ def pivot_worktime(peoplelist):
 
 	timetable = []  # list of rows = matrix
 	_namelist = []  # list of peoples' names, to be inserted at position 0
+	_persontotals = ['Employee Total']  # list for peoples' total time
 
 	for op in oplist:
-		_rowlist = [op]  # list to store row, starting with the operation name
+		_opsum = 0
+		_rowlist = [op]  # list to store row starts with the operation name
 		for person in peoplelist:
 			if person['Name'] not in _namelist:
 				_namelist.append(person['Name'])
+			if op not in person.keys():
+				person[op] = 0.0
 			for key, value in person.iteritems():
 				if key == op:
-					_rowlist.append(value)
+					_rowlist.append(value)  # put person's op time value in row
+					_opsum += value  # for calculating total time / operation
 			timetable.append(_rowlist)
+		_rowlist.append(_opsum)  # tack it on the end
+
+	for person in peoplelist:
+		_persontime = person['Total_mins']
+		if _persontime not in _persontotals:
+			_persontotals.append(_persontime)
 
 	_namelist.insert(0, 'Job Code')
+	_namelist.insert(len(_namelist), 'Job Code Total')
 	timetable.insert(0, _namelist)
+	timetable.insert(len(timetable), _persontotals)
 
 	return timetable
 
@@ -163,5 +176,5 @@ if __name__ == '__main__':
 	_timetable = pivot_worktime(_data)
 
 	_outfile = _filename[:-4] + '_new.csv'
-	# write_data(_outfile, _data)
+	# write_data(_outfile, _data)  # write un-pivoted dicts
 	write_data(_outfile, _timetable)
