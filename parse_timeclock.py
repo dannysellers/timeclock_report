@@ -35,9 +35,9 @@ def fix_time(data):
 	newlist = []
 	for _row in data:
 		"""
-		<FULLNAME>		<DATEIN>	<TIMEIN>	<DATEOUT>	<TIMEOUT>	<JOBCODE>	<EXPORTSAS>
-		Danny Sellers	20141001	0729		20141001	0927		30001		Customer Support
-		Danny Sellers	20141001	0927		20141001	0942		5			Break
+		<FULLNAME>,<DATEIN>,<TIMEIN>,<DATEOUT>,<TIMEOUT>,<JOBCODE>,<EXPORTSAS>
+		Danny Sellers,20141001,0729,20141001,0927,30001,Customer Support
+		Danny Sellers,20141001,0927,20141001,0942,5,Break
 		"""
 		_timein = _row['<TIMEIN>'][:-2], ':', _row['<TIMEIN>'][-2:]
 		# converts 0729 to ['07', ':', '29']
@@ -64,7 +64,7 @@ def fix_time(data):
 				 EXPORTSAS = _row['<EXPORTSAS>'],
 				 DAYIN = _dayin, MONTHIN = _monthin, YEARIN = _yearin, DAYOUT = _dayout,
 				 MONTHOUT = _monthout, YEAROUT = _yearout, TIMEIN = _newtimein,
-				 TIMEOUT = _newtimeout, TIMEDIFF = _timediff))
+				 TIMEOUT = _newtimeout, OPMINS = _timediff))
 
 	return newlist
 
@@ -96,22 +96,8 @@ def parse_people(data):
 		print('Total mins for {}: {}'.format(_opdict['Name'], _opdict['Total_mins']))
 		_lst.append(_opdict)
 
+	return _lst
 
-
-	# _oplist = []
-	# for row in data:
-	#     if row['EXPORTSAS'] not in _oplist:
-	#         _oplist.append(row['EXPORTSAS'])
-	# _oplist
-
-
-	# totaltimedict = {}
-	# for row in data:
-	#     if row['EXPORTSAS'] in totaltimedict:
-	#         totaltimedict[row['EXPORTSAS']] = row['OPMINS']
-	#     else:
-	#         totaltimedict[row['EXPORTSAS']] += row['OPMINS']
-	# print totaltimedict
 
 def write_data(filename, data):
 	w = open(filename, 'w')
@@ -127,11 +113,13 @@ def write_data(filename, data):
 
 
 if __name__ == '__main__':
-	_filename = 'Oct14_JobCodes_PDX.csv'
+	# _filename = 'Oct14_JobCodes_PDX.csv'
+	_filename = 'sample.csv'
 	_data = load_data(_filename)
-	fix_time(_data)
+	_newdata = fix_time(_data)
+	_data = parse_people(_newdata)
 
 	#....
 
 	_outfile = _filename[:-4] + '_new.csv'
-	write_data(_outfile, data = [])
+	write_data(_outfile, _data)
