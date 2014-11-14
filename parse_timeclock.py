@@ -100,38 +100,61 @@ def parse_people(data):
 
 
 def write_data(filename, data):
-	w = open(filename, 'w')
+	w = open(filename, 'wb')
+	print('Writing to {}'.format(filename))
 
 	assert isinstance(data, list)
-	_newfieldnames = data[0].keys()
 	with w:
-		writer = csv.DictWriter(w, delimiter = ',', lineterminator = '\n',
-								fieldnames = _newfieldnames)
-		writer.writerow(dict((fn, fn) for fn in _newfieldnames))
-		for _row in data:
-			writer.writerow(_row)
+		_writer = csv.writer(w, delimiter=',')
+		for row in data:
+			_writer.writerow(row)
+	# _newfieldnames = data[0].keys()
+	# with w:
+	# 	writer = csv.DictWriter(w, delimiter = ',', lineterminator = '\n',
+	# 							fieldnames = _newfieldnames)
+	# 	writer.writerow(dict((fn, fn) for fn in _newfieldnames))
+	# 	for _row in data:
+	# 		writer.writerow(_row)
 
 
-def pivot_worktime(dictlist):
-	pass
-	# list = []
-	# For row in items['EXPORTSAS']:  # loop through all operation categories
-		# _rowlist = []
-		# for person in people:  # pull number for person
-			# if person['EXPORTSAS'] = row:  # pull the person's number for the particular op
-				# _rowlist.append(])  # append to the operation list (row)
-		# list.append(_rowlist)  # append new row to table
-	# return list  # actually a matrix
+def pivot_worktime(peoplelist):
+	oplist = []  # list of operations to be extracted from people dicts
+	for operation in peoplelist[0].keys():
+		if operation is not 'Name' or operation is not 'Total_mins':
+			oplist.append(operation)
+
+	timetable = []  # list of rows = matrix
+
+	for op in oplist:
+		_rowlist = []  # list to store row
+		for person in peoplelist:
+			for key, value in person.iteritems():
+				if key == op:
+					_rowlist.append(value)
+			timetable.append(_rowlist)
+
+	return timetable
+
+
+""" list = []
+For row in items['EXPORTSAS']:  # loop through all operation categories
+	_rowlist = []
+	for person in people:  # pull number for person
+		if person['EXPORTSAS'] = row:  # pull the person's number for the particular op
+			_rowlist.append(])  # append to the operation list (row)
+	list.append(_rowlist)  # append new row to table
+return list  # actually a matrix """
 
 
 if __name__ == '__main__':
-	# _filename = 'Oct14_JobCodes_PDX.csv'
-	_filename = 'sample.csv'
+	_filename = 'Oct14_JobCodes_PDX.csv'
+	# _filename = 'sample.csv'
 	_data = load_data(_filename)
 	_newdata = fix_time(_data)
 	_data = parse_people(_newdata)
 
+	_timetable = pivot_worktime(_data)
 	#....
 
 	_outfile = _filename[:-4] + '_new.csv'
-	write_data(_outfile, _data)
+	write_data(_outfile, _timetable)
