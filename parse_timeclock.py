@@ -112,6 +112,18 @@ def write_data(filename, data):
 			writer.writerow(_row)
 
 
+def pivot_worktime(dictlist):
+	pass
+	# list = []
+	# For row in items['EXPORTSAS']:  # loop through all operation categories
+		# _rowlist = []
+		# for person in people:  # pull number for person
+			# if person['EXPORTSAS'] = row:  # pull the person's number for the particular op
+				# _rowlist.append(])  # append to the operation list (row)
+		# list.append(_rowlist)  # append new row to table
+	# return list  # actually a matrix
+
+
 if __name__ == '__main__':
 	# _filename = 'Oct14_JobCodes_PDX.csv'
 	_filename = 'sample.csv'
