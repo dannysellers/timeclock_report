@@ -9,7 +9,7 @@ def load_data(filename):
 	try:
 		f = open(filename, 'r')
 	except IOError:
-		print(filename + ' could not be found! :(')
+		print(filename + ' could not be found!')
 		exit(1)
 
 	_list = []
@@ -129,17 +129,20 @@ def pivot_worktime(peoplelist):
 
 	# First extract a list of operations from people dicts for first column
 	oplist = []
-	for operation in peoplelist[0].keys():
-		if operation != 'Name' and operation != 'Total_mins':
-			oplist.append(operation)
+	for person in peoplelist:
+		for operation in person.keys():
+			if operation != 'Name' and operation != 'Total_mins' and operation not in oplist:
+				oplist.append(operation)
 
 	timetable = []  # list of rows = matrix
 	_namelist = []  # list of peoples' names, to be inserted at position 0
 	_persontotals = ['Employee Total']  # list for peoples' total time
+	_totaltime = 0.0
 
 	for op in oplist:
-		_opsum = 0
+		_opsum = 0.0
 		_rowlist = [op]  # list to store row starts with the operation name
+
 		for person in peoplelist:
 			if person['Name'] not in _namelist:
 				_namelist.append(person['Name'])
@@ -149,13 +152,16 @@ def pivot_worktime(peoplelist):
 				if key == op:
 					_rowlist.append(value)  # put person's op time value in row
 					_opsum += value  # for calculating total time / operation
-			timetable.append(_rowlist)
+
+		timetable.append(_rowlist)
 		_rowlist.append(_opsum)  # tack it on the end
 
 	for person in peoplelist:
 		_persontime = person['Total_mins']
+		_totaltime += _persontime
 		if _persontime not in _persontotals:
 			_persontotals.append(_persontime)
+	_persontotals.append(_totaltime)
 
 	_namelist.insert(0, 'Job Code')
 	_namelist.insert(len(_namelist), 'Job Code Total')
