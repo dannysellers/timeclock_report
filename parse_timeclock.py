@@ -1,5 +1,6 @@
 import csv
 from datetime import datetime
+import sys
 
 
 def load_data(filename):
@@ -172,7 +173,18 @@ def pivot_worktime(peoplelist):
 
 
 if __name__ == '__main__':
-	_filename = 'Oct14_JobCodes_PDX.csv'
+	if len(sys.argv) < 2:
+		_filename = raw_input('Input file? (must be .csv format)\t')
+	elif len(sys.argv) == 2:
+		_filename = sys.argv[1]
+	else:
+		print("That's too many arguments!")
+		sys.exit(1)
+
+	if '.csv' not in _filename:
+		_filename += '.csv'
+
+	#_filename = 'Oct14_JobCodes_PDX.csv'
 	# _filename = 'sample.csv'
 
 	_data = load_data(_filename)
