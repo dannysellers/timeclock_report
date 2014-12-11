@@ -3,27 +3,26 @@ from datetime import datetime
 import sys
 
 
+
 def load_data(filename):
 	"""
 	Loads data from filename into a list of dicts
 	"""
 	try:
 		f = open(filename, 'r')
+		_list = []
+		with f:
+			print('Reading ' + filename)
+			_reader = csv.reader(f)
+			_fieldnames = _reader.next()
+			print 'Headers: ', _fieldnames
+			_dictreader = csv.DictReader(f, fieldnames = _fieldnames)
+			for _row in _dictreader:
+				_list.append(_row)
+
+		return _list
 	except IOError:
-		print(filename + ' could not be found!')
-		exit(1)
-
-	_list = []
-	with f:
-		print('Reading ' + filename)
-		_reader = csv.reader(f)
-		_fieldnames = _reader.next()
-		print 'Headers: ', _fieldnames
-		_dictreader = csv.DictReader(f, fieldnames = _fieldnames)
-		for _row in _dictreader:
-			_list.append(_row)
-
-	return _list
+		raise
 
 
 def fix_time(data):
@@ -184,15 +183,20 @@ if __name__ == '__main__':
 	if '.csv' not in _filename:
 		_filename += '.csv'
 
-	#_filename = 'Oct14_JobCodes_PDX.csv'
-	# _filename = 'sample.csv'
+	_outfile = _filename[:-4] + '_new.csv'
 
-	_data = load_data(_filename)
+	try:
+		_data = load_data(_filename)
+	except IOError, e:
+		print("{}: {}".format(type(e), e))
+		raw_input("No data written. Press any key to exit.")
+		sys.exit(1)
+	
 	_newdata = fix_time(_data)
 	_data = parse_people(_newdata)
 
 	_timetable = pivot_worktime(_data)
 
-	_outfile = _filename[:-4] + '_new.csv'
 	# write_data(_outfile, _data)  # write un-pivoted dicts
 	write_data(_outfile, _timetable)
+	raw_input('{} written successfully. Press any key to exit.'.format(_outfile))
